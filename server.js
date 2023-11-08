@@ -1,26 +1,27 @@
-// server.js
 const express = require('express');
-const db = require('./models/dbModel.js');
-const adminRouter = require('./routes/adminRoute.js');
+const bodyParser = require('body-parser');
+
+const dotenv = require('dotenv');
+dotenv.config({ path: './.env' });
+
+const adminRouter = require('./admin');
+
 
 const host = 'localhost';
 const PORT = process.env.PORT || 3000;
 const app = express();
 
+app.use('/admin', adminRouter);
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-db.sequelize.sync({ alter: true })
-    .then(() => {
-        console.log('Sync db!');
-    })
-    .catch((err) => {
-        console.log('Fail to sync db: ' + err);
-    });
 
 require('./routes/userRoutes')(app);
+require('./routes/authRoutes')(app);
 
-app.use('/admin', adminRouter); 
+
+app.use(bodyParser.json());
 
 app.listen(PORT, () => {
     console.log(`Server start on http://${host}:${PORT}`);

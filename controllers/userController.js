@@ -1,37 +1,6 @@
-const db = require('../models/dbModel');
-const User = db.users;
-const Op = db.Sequelize.Op;
+const User = require('../models/userModel');
 
-exports.create = (req, res) => {
 
-    console.log('hrlllllo');
-
-    // put errors for registartion! 
-    if (!req.body.login) {
-        res.status(400).send({
-            message: 'Content cannot be empty!'
-        });
-        return;
-    }
-    const user = {
-        login: req.body.login,
-        password: req.body.password,
-        email: req.body.email,
-        fullName: req.body.fullName,
-    };
-    console.log('hrlllllo');
-    User.create(user)
-        .then((data) => {
-            res.send(data);
-            console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!');
-        })
-        .catch((err) => {
-            res.status(500).send({
-                message: 
-                err.massage || 'Some errors while creation the User!!!!' 
-            });
-        });
-};
 
 exports.findAll = (req, res) => {
     // const login = req.params.id;
@@ -48,11 +17,11 @@ exports.findAll = (req, res) => {
 };
 
 exports.findOne = (req, res) => {
-    const id = req.params.id;
+    const id = req.params.user_id;
 
     User.findByPk(id)
         .then((data) => {
-            if (data) 
+            if (data)
                 res.send(data);
             else {
                 res.status(404).send({
@@ -68,15 +37,15 @@ exports.findOne = (req, res) => {
 };
 
 exports.update = (req, res) => {
-    const id = req.params.id;
+    const id = req.params.user_id;
 
     User.update(req.body, {
         where: { id: id }
     })
         .then((data) => {
-            if (data == 1) 
+            if (data == 1)
                 res.send({
-                    message: 'User was updated successfully!' 
+                    message: 'User was updated successfully!'
                 });
             else {
                 res.send({
@@ -92,15 +61,15 @@ exports.update = (req, res) => {
 };
 
 exports.delete = (req, res) => {
-    const id = req.params.id;
+    const id = req.params.user_id;
 
     User.destroy({
         where: { id: id }
     })
         .then((data) => {
-            if (data == 1) 
+            if (data == 1)
                 res.send({
-                    message: 'User was deleted successfully!' 
+                    message: 'User was deleted successfully!'
                 });
             else {
                 res.send({
@@ -115,22 +84,22 @@ exports.delete = (req, res) => {
         })
 };
 
-exports.deleteAll = (req, res) => {
-    User.destroy({
-        where: {},
-        truncate: false
-    })
-        .then((data) => {
-            res.send({
-                message: data + 'Users was deleted successfully!' 
-            });
-        })
-        .catch((err) => {
-            res.status(500).send({
-                message: err.message || 'Error deleting all users'
-            });
-        });
-};
+// exports.deleteAll = (req, res) => {
+//     User.destroy({
+//         where: {},
+//         truncate: false
+//     })
+//         .then((data) => {
+//             res.send({
+//                 message: data + 'Users was deleted successfully!'
+//             });
+//         })
+//         .catch((err) => {
+//             res.status(500).send({
+//                 message: err.message || 'Error deleting all users'
+//             });
+//         });
+// };
 
 // exports.findAllPublished = (req, res) => {
 
