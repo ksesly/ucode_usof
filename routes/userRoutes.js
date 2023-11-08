@@ -3,15 +3,15 @@ module.exports = (app) => {
 
     var router = require('express').Router();
 
-    router.post('/', users.create);
-
     router.get('/', users.findAll);
-    router.get('/:id', users.findOne);
+    router.get('/:user_id', users.findOne);
 
-    router.put('/:id', users.update);
+    router.patch('/:user_id', users.update);
+    // router.patch('/avatar', users.updateAvatar);
 
-    router.delete('/:id', users.delete);
-    router.delete('/', users.deleteAll);
+    router.delete('/:user_id', users.delete);
+    // router.delete('/', users.deleteAll);
     
     app.use('/api/users', router);
 }
+

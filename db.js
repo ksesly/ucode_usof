@@ -1,39 +1,16 @@
-// const sequelize = require('sequelize');
-
-// module.exports = new sequelize('ucode-usof', 'root', 'root', {
-//     host: 'localhost',
-//     post: 3000,
-//     dialect: 'mysql',
-//     // define: {
-//     //     freezeTableName: true 
-//     // }
-// });
+const Sequelize = require('sequelize');
+const sequelize = new Sequelize(process.env.DB, process.env.USER, process.env.PASSWORD, {
+    host: process.env.HOST,
+    dialect: process.env.dialect,
+});
 
 
-module.exports = {
-    HOST: "localhost",
-    USER: "root",
-    PASSWORD: "root",
-    DB: "ucode-usof",
-    dialect: "mysql",
-    // pool: {
-    //   max: 5,
-    //   min: 0,
-    //   acquire: 30000,
-    //   idle: 10000
-    // }
-  };
+sequelize.sync({ alter: true })
+    .then(() => {
+        console.log('Sync db!');
+    })
+    .catch((err) => {
+        console.log('Fail to sync db: ' + err);
+    });
 
-// async function my() {
-//     try {
-//         await sequelizeSchema.authenticate();
-//         console.group('you`re successful boiiiiiiiiii');
-//     } catch (error) {
-//         console.log('you`re not connect :O\n', error);
-//     }
-   
-// }
-
-// my();
-
-//  connection;
+module.exports = sequelize;

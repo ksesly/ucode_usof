@@ -1,63 +1,55 @@
-const { sequelize, Sequelize } = require("../models/dbModel");
+const { Sequelize, Model, DataTypes } = require("sequelize");
+const sequelize = require('../db');
 
+const User = sequelize.define(
+    'user', {
+        user_id: {
+            type: DataTypes.INTEGER,
+            primaryKey: true,
+            autoIncrement: true
+        },
+        login: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true
+        },
+        password: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        fullName: {
+            type: DataTypes.STRING,
+            allowNull: false
+        },
+        email: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            unique: true
+        },
+        profilePicture: {
+            type: DataTypes.BLOB,
+            allowNull: true
+        },
+        rating: {
+            type: DataTypes.INTEGER,
+            allowNull: true,
+            defaultValue: 0
+        },
+        role: {
+            type: DataTypes.STRING,
+            allowNull: false,
+            defaultValue: 'user'
+        },
+    }, 
+    {
+        freezeTableName: true,
+        timestamps: false
+    }
+);
+User.sync();
 
-module.exports = (sequelize, Sequelize) => {
-    const User = sequelize.define(
-        'user', {
-            user_id: {
-                type: Sequelize.INTEGER,
-                primaryKey: true,
-                autoIncrement: true
-            },
-            login: {
-                type: Sequelize.STRING,
-                allowNull: false
-            },
-            password: {
-                type: Sequelize.STRING
-            },
-            email: {
-                type: Sequelize.STRING
-            },
-            fullName: {
-                type:Sequelize.STRING
-            }
-        }, 
-        {
-            freezeTableName: true,
-            timestamps: false
-        }
-    );
-    User.sync();
-    return User;
-}
+module.exports = User;
 
-// const User = sequelize.create(
-//     'user', {
-//         user_id: {
-//             type: Sequelize.INTEGER,
-//             primaryKey: true,
-//             autoIncrement: true
-//         },
-//         login: {
-//             type: Sequelize.STRING,
-//             allowNull: false
-//         },
-//         password: {
-//             type: Sequelize.STRING
-//         },
-//         email: {
-//             type: Sequelize.STRING
-//         },
-//         fullName: {
-//             type:Sequelize.STRING
-//         }
-//     }, 
-//     {
-//         freezeTableName: true,
-//         timestamps: false
-//     }
-// );
 
 
 
