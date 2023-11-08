@@ -1,6 +1,6 @@
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
-const secretKey = 'yourSecretKey';
+
 
 exports.register = (req, res) => {
     
@@ -23,7 +23,7 @@ exports.register = (req, res) => {
 
     User.create(user)
         .then((data) => {
-            const token = jwt.sign({ login: user.login }, secretKey, { expiresIn: '24h' });
+            const token = jwt.sign({ login: user.login }, process.env.secretKey, { expiresIn: process.env.expiresTime });
             // разобраться с data
             res.send({
                 message: 'Registration successful',
