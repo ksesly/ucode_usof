@@ -1,5 +1,6 @@
 const { Sequelize, Model, DataTypes } = require("sequelize");
 const sequelize = require('../db');
+const bcrypt = require('bcrypt');
 
 const User = sequelize.define(
     'user', {
@@ -19,12 +20,18 @@ const User = sequelize.define(
         },
         fullName: {
             type: DataTypes.STRING,
-            allowNull: false
+            allowNull: false,
+            validate: {
+                is: /^[a-zA-Z\s]+$/,
+            }
         },
         email: {
             type: DataTypes.STRING,
             allowNull: false,
-            unique: true
+            unique: true,
+            validate: {
+                isEmail: true, 
+            }
         },
         profilePicture: {
             type: DataTypes.BLOB,
@@ -46,7 +53,17 @@ const User = sequelize.define(
         timestamps: false
     }
 );
+
+User.beforeSave(async (User) => {
+    if (User.changed('password')) {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(User.password, saltRounds);
+        User.password = hashedPassword;
+      }
+});
+
 User.sync();
+
 
 module.exports = User;
 

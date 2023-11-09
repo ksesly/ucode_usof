@@ -5,7 +5,7 @@ const sequelize = new Sequelize(process.env.DB, process.env.USER, process.env.PA
 });
 
 
-sequelize.sync({ alter: true })
+sequelize.sync(/*{ alter: true }*/)
     .then(() => {
         console.log('Sync db!');
     })
