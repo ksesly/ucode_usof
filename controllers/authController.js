@@ -145,50 +145,56 @@ exports.resetPassword = (req, res) => {
 				return;
 			}
 
-			const resetToken = crypto.randomBytes(40).toString('hex');
-			// const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
-			// const expiredAt = resetTokenExpires;
+			RP.findOne({
+					where: {
+						user_id: data.user_id,
+					},
+				}).then((existingReset) => {
+					let resetToken;
+					if (existingReset) {
+						resetToken = existingReset.token;
+						existingReset.update({ token: resetToken });
+					} else {
+						resetToken = crypto.randomBytes(40).toString('hex');
+						RP.create({
+							user_id: data.user_id,
+							token: resetToken,
+						});
+					}
 
-			const mailOptions = {
-				from: process.env.emailUser,
-				to: req.body.email,
-				subject: 'Reset password',
-				text:
-					'Here is the link to reset the password: http://127.0.0.1:3000/api/auth/password-reset/' +
-					`${resetToken}`,
-				auth: {
-					user: process.env.emailUser,
-					refreshToken: process.env.REFRESHTOKEN,
-				},
-			};
+					// const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
+					// const expiredAt = resetTokenExpires;
 
-			const info = transporter.sendMail(mailOptions, (error, info) => {});
+					const mailOptions = {
+						from: process.env.emailUser,
+						to: req.body.email,
+						subject: 'Reset password',
+						text:
+							'Here is the link to reset the password: http://127.0.0.1:3000/api/auth/password-reset/' +
+							`${resetToken}`,
+						auth: {
+							user: process.env.emailUser,
+							refreshToken: process.env.REFRESHTOKEN,
+						},
+					};
 
-			const reset = {
-				user_id: data.user_id,
-				token: resetToken,
-			};
+					const info = transporter.sendMail(
+						mailOptions,
+						(error, info) => {}
+					);
 
-			res.send({
-				message: 'Check email please (more likely folder "spam")',
-				data,
-				resetToken,
-			});
-
-			RP.create(reset)
-				.then((info) => {
-					// res.send({
-					// 	message: 'Save to bd RP successfully',
-					// 	info,
-					// });
-				})
-				.catch((err) => {
-					// res.status(500).send({
-					// 	message:
-					// 		err.massage || 'Some errors while write to RP!',
-					// });
+					res.send({
+						message: 'Check email please (more likely folder "spam")',
+						data,
+						resetToken,
+					});
 				});
-		})
+			})
+			.catch((err) => {
+				res.status(500).send({
+					message: err.message || 'Error while querying reset tokens!',
+				});
+			})
 		.catch((err) => {
 			res.status(500).send({
 				message: err.massage || 'There is no such a user!',
