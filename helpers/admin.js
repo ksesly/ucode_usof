@@ -1,7 +1,7 @@
 const AdminJS = require('adminjs');
 const AdminJSExpress = require('@adminjs/express');
 const AdminJSequalize = require('@adminjs/sequelize');
-const User = require('./models/userModel');
+const User = require('../models/userModel');
 
 const DEFAULT_ADMIN = {
 	email: 'admin@example.com',

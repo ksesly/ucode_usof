@@ -1,7 +1,10 @@
 const User = require('../models/userModel');
+const RP = require('../models/resetPasswordModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
+const transporter = require('../helpers/resetPassword');
+const crypto = require('crypto');
 
 exports.register = (req, res) => {
 	if (
@@ -128,9 +131,68 @@ exports.logout = (req, res) => {
 	);
 };
 
-// exports.resetPassword = (req, res) => {
+exports.resetPassword = (req, res) => {
+	User.findOne({
+		where: {
+			email: req.body.email,
+		},
+	})
+		.then((data) => {
+			if (!data) {
+				res.status(400).send({
+					message: 'Entschuldigung, bitch!',
+				});
+				return;
+			}
+			const mailOptions = {
+				from: process.env.emailUser,
+				to: req.body.email,
+				subject: 'Reset password',
+				text: 'Here is the link to reset the password',
+				auth: {
+					user: process.env.emailUser,
+					refreshToken: process.env.REFRESHTOKEN,
+					// accessToken: 'putTheAccessTokenHere',
+					// expires: 'putTheAccessTokenExpirationTimeHere'
+				},
+			};
 
-// }
+			const info = transporter.sendMail(mailOptions, (error, info) => {});
+			res.send({
+				message: 'Check email please',
+				data,
+			});
+
+			const resetToken = crypto.randomBytes(40).toString('hex');
+			// const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
+			// const expiredAt = resetTokenExpires;
+
+			const reset = {
+				user_id: data.user_id,
+				token: resetToken,
+			};
+
+			RP.create(reset)
+				.then((info) => {
+					res.send({
+						message: 'Save to bd RP successfully',
+						info
+					});
+				})
+				.catch((err) => {
+					res.status(500).send({
+						message:
+							err.massage ||
+							'Some errors while write to RP!',
+					});
+				});
+		})
+		.catch((err) => {
+			res.status(500).send({
+				message: err.massage || 'There is no such a user!',
+			});
+		});
+};
 
 // exports.confirmPassword = (req, res) => {
 
