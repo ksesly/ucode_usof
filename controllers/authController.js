@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const transporter = require('../helpers/resetPassword');
 const crypto = require('crypto');
+const moment = require('moment');
 
 exports.register = (req, res) => {
 	if (
@@ -146,55 +147,53 @@ exports.resetPassword = (req, res) => {
 			}
 
 			RP.findOne({
-					where: {
+				where: {
+					user_id: data.user_id,
+				},
+			}).then((existingReset) => {
+				let resetToken = crypto.randomBytes(40).toString('hex');
+				if (existingReset) {
+					existingReset.update({ token: resetToken });
+				} else {
+					RP.create({
 						user_id: data.user_id,
-					},
-				}).then((existingReset) => {
-					let resetToken;
-					if (existingReset) {
-						resetToken = existingReset.token;
-						existingReset.update({ token: resetToken });
-					} else {
-						resetToken = crypto.randomBytes(40).toString('hex');
-						RP.create({
-							user_id: data.user_id,
-							token: resetToken,
-						});
-					}
-
-					// const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
-					// const expiredAt = resetTokenExpires;
-
-					const mailOptions = {
-						from: process.env.emailUser,
-						to: req.body.email,
-						subject: 'Reset password',
-						text:
-							'Here is the link to reset the password: http://127.0.0.1:3000/api/auth/password-reset/' +
-							`${resetToken}`,
-						auth: {
-							user: process.env.emailUser,
-							refreshToken: process.env.REFRESHTOKEN,
-						},
-					};
-
-					const info = transporter.sendMail(
-						mailOptions,
-						(error, info) => {}
-					);
-
-					res.send({
-						message: 'Check email please (more likely folder "spam")',
-						data,
-						resetToken,
+						token: resetToken,
 					});
+				}
+
+				// const resetTokenExpires = new Date(Date.now() + 60 * 60 * 1000);
+				// const expiredAt = resetTokenExpires;
+
+				const mailOptions = {
+					from: process.env.emailUser,
+					to: req.body.email,
+					subject: 'Reset password',
+					text:
+						'Here is the link to reset the password: http://127.0.0.1:3000/api/auth/password-reset/' +
+						`${resetToken}`,
+					auth: {
+						user: process.env.emailUser,
+						refreshToken: process.env.REFRESHTOKEN,
+					},
+				};
+
+				const info = transporter.sendMail(
+					mailOptions,
+					(error, info) => {}
+				);
+
+				res.send({
+					message: 'Check email please (more likely folder "spam")',
+					data,
+					resetToken,
 				});
-			})
-			.catch((err) => {
-				res.status(500).send({
-					message: err.message || 'Error while querying reset tokens!',
-				});
-			})
+			});
+		})
+		.catch((err) => {
+			res.status(500).send({
+				message: err.message || 'Error while querying reset tokens!',
+			});
+		})
 		.catch((err) => {
 			res.status(500).send({
 				message: err.massage || 'There is no such a user!',
@@ -202,6 +201,55 @@ exports.resetPassword = (req, res) => {
 		});
 };
 
-// exports.confirmPassword = (req, res) => {
+exports.confirmPassword = (req, res) => {
+	console.log(req.params);
+	RP.findOne({
+		where: {
+			token: req.params.confirm_token,
+		},
+	})
+		.then((data) => {
+			if (data.token === req.params.confirm_token) {
+				const tokenCreationTime = moment(data.updatedAt);
+				const currentTime = moment();
+				const timeDifference = currentTime.diff(
+					tokenCreationTime,
+					'minutes'
+				);
+				console.log(timeDifference);
+				console.log('tokenCreationTime: ', tokenCreationTime);
+				console.log('currentTime: ', currentTime);
+				if (timeDifference > 5 * 60) {
+					return res.status(400).send({
+						message:
+							'Time of waiting is out, try one more time from the start',
+					});
+				}
 
-// }
+				User.findByPk(data.user_id)
+					.then(async (info) => {
+						if (await bcrypt.compare(req.body.password, info.password)) {
+							return res.send({
+								message: 'You have already used this password!',
+							});
+						}
+						info.password = req.body.password;
+						await info.save();
+						res.send({
+							message: 'normal resave of password!',
+							info,
+						});
+					})
+					.catch((err) => {
+						res.status(500).send({
+							message: err.massage || 'No users with this id :(',
+						});
+					});
+			}
+		})
+		.catch((err) => {
+			res.status(500).send({
+				message: err.massage || 'No such a token in RP',
+			});
+		});
+};
