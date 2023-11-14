@@ -123,7 +123,6 @@ exports.updateAvatar = (req, res) => {
 				const mimeType = profilePictureFile.type;
 				const fileExtension = mime.extension(mimeType);
 
-				
 				const uniqueFileName =
 					'avatar_' + Date.now() + '.' + fileExtension;
 
