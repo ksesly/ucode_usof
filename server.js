@@ -17,6 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 require('./routes/userRoutes')(app);
 require('./routes/authRoutes')(app);
+require('./routes/postRoutes')(app);
 
 app.use(bodyParser.json());
 
