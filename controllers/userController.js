@@ -1,4 +1,9 @@
 const User = require('../models/userModel');
+const formidable = require('formidable');
+const path = require('path');
+const fs = require('fs');
+const mime = require('mime-types');
+const jwt = require('jsonwebtoken');
 
 exports.findAll = (req, res) => {
 	User.findAll()
@@ -73,12 +78,7 @@ exports.create = (req, res) => {
 		});
 };
 
-const formidable = require('formidable');
-const path = require('path');
-const fs = require('fs');
-const mime = require('mime-types');
 
-const jwt = require('jsonwebtoken');
 
 exports.updateAvatar = (req, res) => {
 	const form = formidable({

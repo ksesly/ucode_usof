@@ -7,7 +7,7 @@ module.exports = (app) => {
 
 	//public 
 	router.get('/', posts.getAllPosts); 
-	router.get('/:post_id', posts.getOnePost); // get one post
+	router.get('/:post_id', posts.getOnePost); 
 	router.get('/:post_id/comments',); // get all comments
 
 	// for users
@@ -17,8 +17,8 @@ module.exports = (app) => {
 	router.get('/:post_id/like', ); // get all likes under the post
 	router.post('/', posts.createPost); // create a new post [title, content, categoris]
 	router.post('/:post_id/like', ); // create a new like under the post
-	router.patch('/:post_id', ); // update the specified post (only for creators of the post)
-	router.delete('/:post_id', ); // delete a post
+	router.patch('/:post_id', posts.updatePost); 
+	router.delete('/:post_id', posts.deletePost); 
 	router.delete('/:post_id/like', ); // delete a like under the post
 
 	app.use('/api/posts', router);

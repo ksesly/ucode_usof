@@ -89,8 +89,72 @@ exports.createPost = (req, res) => {
 
 exports.createLike = (req, res) => {};
 
-exports.updatePost = (req, res) => {};
+exports.updatePost = (req, res) => {
+	const id = req.params.post_id;
+	jwt.verify(
+		req.headers.authorization.split(' ')[1],
+		process.env.secretKey,
+		(err, data) => {
+			Post.findByPk(id)
+				.then((post) => {
+					if (!post) {
+						return res.status(404).send({
+							message: `Post with id=${id} not found`,
+						});
+					}
 
-exports.deletePost = (req, res) => {};
+					if (post.author !== data.login) {
+						return res.status(403).send({
+							message: "You're not the author of this post",
+						});
+					}
+
+					post.update(req.body)
+						.then(() => {
+							res.send({
+								message: 'Post was updated successfully!',
+							});
+						})
+						.catch((updateError) => {
+							console.error(updateError);
+							res.status(500).send({
+								message:
+									'Error updating the post with id ' + postId,
+							});
+						});
+				})
+				.catch((error) => {
+					console.error(error);
+					res.status(500).send({
+						message: 'Error fetching post data for update',
+					});
+				});
+		}
+	);
+};
+
+exports.deletePost = (req, res) => {
+	const id = req.params.post_id;
+
+	Post.destroy({
+		where: { post_id: id },
+	})
+		.then((data) => {
+			if (data == 1)
+				res.send({
+					message: 'Post was deleted successfully!',
+				});
+			else {
+				res.send({
+					message: `Cannot delete the post with id=` + id,
+				});
+			}
+		})
+		.catch((err) => {
+			res.status(500).send({
+				message: 'Error deleting the post with id=' + id,
+			});
+		});
+};
 
 exports.deliteLikeUnderPost = (req, res) => {};
