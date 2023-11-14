@@ -2,9 +2,35 @@ const Post = require('../models/postModel');
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 
-exports.getAllPosts = (req, res) => {};
+exports.getAllPosts = (req, res) => {
+	Post.findAll()
+		.then((data) => {
+			res.send(data);
+		})
+		.catch((err) => {
+			res.status(500).send({
+				message: 'errrrrrrrrrrrrrrrrrrrrrrrrrror',
+			});
+		});
+};
 
-exports.getOnePost = (req, res) => {};
+exports.getOnePost = (req, res) => {
+	const id = req.params.post_id;
+	Post.findByPk(id)
+		.then((data) => {
+			if (data) res.send(data);
+			else {
+				res.status(404).send({
+					message: `Cannot find the post with id=` + id,
+				});
+			}
+		})
+		.catch((err) => {
+			res.status(500).send({
+				message: 'Error retreiving the post with id' + id,
+			});
+		});
+};
 
 exports.getAllComments = (req, res) => {};
 
@@ -29,7 +55,7 @@ exports.createPost = (req, res) => {
 			User.findByPk(data.id)
 				.then((data) => {
 					const post = {
-                        author: data.login,
+						author: data.login,
 						title: req.body.title,
 						content: req.body.content,
 						categories: req.body.categories,

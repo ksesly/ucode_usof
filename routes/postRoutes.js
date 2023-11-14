@@ -6,8 +6,8 @@ module.exports = (app) => {
 	var router = require('express').Router();
 
 	//public 
-	router.get('/', ); //get all posts
-	router.get('/:post_id',); // get one post
+	router.get('/', posts.getAllPosts); 
+	router.get('/:post_id', posts.getOnePost); // get one post
 	router.get('/:post_id/comments',); // get all comments
 
 	// for users
