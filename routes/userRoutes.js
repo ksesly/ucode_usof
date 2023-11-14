@@ -7,9 +7,10 @@ module.exports = (app) => {
 
 	router.get('/', users.findAll);
 	router.get('/:user_id', users.findOne);
-
+	
+	router.patch('/avatar', users.updateAvatar);
     router.patch('/:user_id', users.update);
-	// router.patch('/avatar', users.updateAvatar);
+	
 
 	router.delete('/:user_id', users.delete);
 

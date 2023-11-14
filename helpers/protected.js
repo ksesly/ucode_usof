@@ -1,7 +1,13 @@
 const User = require('../models/userModel');
+const jwt = require('jsonwebtoken');
 
 exports.protectedRoute = (req, res, next) => {
-	const token = req.headers.authorization.split(' ')[1];
+	const authorizationHeader = req.headers.authorization;
+	console.log(authorizationHeader);
+	if (!authorizationHeader) {
+		return next('Unauthorized');
+	}
+	const token = authorizationHeader.split(' ')[1];
 	if (!token) {
 		return next('Unauthorized');
 	}

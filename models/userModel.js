@@ -34,7 +34,7 @@ const User = sequelize.define(
             }
         },
         profilePicture: {
-            type: DataTypes.BLOB,
+            type: DataTypes.STRING,
             allowNull: true
         },
         rating: {

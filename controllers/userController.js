@@ -1,59 +1,6 @@
 const User = require('../models/userModel');
 
-
-exports.create = (req, res) => {
-	if (
-		!req.body.login ||
-		!req.body.password ||
-		!req.body.email ||
-		!req.body.fullName ||
-		!req.body.role
-	) {
-		res.status(400).send({
-			message: 'Content cannot be empty!',
-		});
-		return;
-	}
-	if (req.body.password !== req.body.passwordConfirmation) {
-		res.status(400).send({
-			message: 'Passwords are different!',
-		});
-		return;
-	}
-	const user = {
-		login: req.body.login,
-		password: req.body.password,
-		email: req.body.email,
-		fullName: req.body.fullName,
-		role: req.body.role
-	};
-
-	User.create(user)
-		.then((data) => {
-			const token = jwt.sign(
-				{ id: data.user_id, login: user.login },
-				process.env.secretKey,
-				{ expiresIn: process.env.expiresTime }
-			);
-
-			res.send({
-				message: 'Registration successful',
-				token,
-				data,
-			});
-		})
-		.catch((err) => {
-			res.status(500).send({
-				message:
-					err.massage || 'Some errors while creation the User!!!!',
-			});
-		});
-};
-
-
 exports.findAll = (req, res) => {
-	// const login = req.params.id;
-
 	User.findAll()
 		.then((data) => {
 			res.send(data);
@@ -83,11 +30,142 @@ exports.findOne = (req, res) => {
 		});
 };
 
+exports.create = (req, res) => {
+	if (
+		!req.body.login ||
+		!req.body.password ||
+		!req.body.email ||
+		!req.body.fullName ||
+		!req.body.role
+	) {
+		res.status(400).send({
+			message: 'Content cannot be empty!',
+		});
+		return;
+	}
+	if (req.body.password !== req.body.passwordConfirmation) {
+		res.status(400).send({
+			message: 'Passwords are different!',
+		});
+		return;
+	}
+	const user = {
+		login: req.body.login,
+		password: req.body.password,
+		email: req.body.email,
+		fullName: req.body.fullName,
+		role: req.body.role,
+	};
+
+	console.log(user);
+	User.create(user)
+		.then((data) => {
+			res.send({
+				message: 'Creation successful',
+				data,
+			});
+		})
+		.catch((err) => {
+			res.status(500).send({
+				message:
+					err.massage || 'Some errors while creation the User!!!!',
+			});
+		});
+};
+
+const formidable = require('formidable');
+const path = require('path');
+const fs = require('fs');
+const mime = require('mime-types');
+
+const jwt = require('jsonwebtoken');
+
+exports.updateAvatar = (req, res) => {
+	const form = formidable({
+		multiples: true,
+		uploadDir: path.join(__dirname, '../static/avatars'),
+	});
+
+	console.log('tuta rabotaet 1');
+
+	jwt.verify(
+		req.headers.authorization.split(' ')[1],
+		process.env.secretKey,
+		(err, decoded) => {
+			if (err) {
+				return res.status(401).send({
+					message: 'Unauthorized',
+				});
+			}
+
+			const userIdFromToken = decoded.id;
+
+			console.log('tuta rabotaet 2');
+
+			form.parse(req, (err, fields, files) => {
+				console.log('tuta rabotaet 3');
+				if (err) {
+					return res.status(500).send({
+						message: 'Error parsing form: ' + err.message,
+					});
+				}
+
+				const profilePictureFile = files.profilePicture;
+
+				if (!profilePictureFile) {
+					return res.status(400).send({
+						message: 'Avatar file is required!',
+					});
+				}
+
+				const profilePicturePath = profilePictureFile.path;
+				console.log(profilePicturePath, 'IPIPUPIPIPIPIPI')
+				const mimeType = profilePictureFile.type;
+				const fileExtension = mime.extension(mimeType);
+
+				// Generate a unique filename with the correct extension
+				const uniqueFileName =
+					'avatar_' + Date.now() + '.' + fileExtension;
+
+				// Rename the file to include the extension
+				const newPath = path.join(
+					path.dirname(profilePicturePath),
+					uniqueFileName
+				);
+				
+				fs.renameSync(profilePicturePath, newPath);
+
+				User.update(
+					{ profilePicture: `/static/avatar/${uniqueFileName}` },
+					{
+						where: { user_id: userIdFromToken },
+					}
+				)
+					.then((data) => {
+						if (data == 1) {
+							res.send({
+								message: 'Avatar was updated successfully!',
+							});
+						} else {
+							res.status(404).send({
+								message: `Cannot update the user's avatar with id=${id}. User not found.`,
+							});
+						}
+					})
+					.catch((err) => {
+						res.status(500).send({
+							message: `Error updating the user's avatar with id ${id}: ${err.message}`,
+						});
+					});
+			});
+		}
+	);
+};
+
 exports.update = (req, res) => {
 	const id = req.params.user_id;
-
 	User.update(req.body, {
-		where: { id: id },
+		where: { user_id: id },
 	})
 		.then((data) => {
 			if (data == 1)
@@ -102,7 +180,7 @@ exports.update = (req, res) => {
 		})
 		.catch((err) => {
 			res.status(500).send({
-				message: 'Error updating the user with id' + id,
+				message: 'Error updating the user with id ' + id,
 			});
 		});
 };
@@ -111,7 +189,7 @@ exports.delete = (req, res) => {
 	const id = req.params.user_id;
 
 	User.destroy({
-		where: { id: id },
+		where: { user_id: id },
 	})
 		.then((data) => {
 			if (data == 1)
@@ -146,8 +224,4 @@ exports.delete = (req, res) => {
 //                 message: err.message || 'Error deleting all users'
 //             });
 //         });
-// };
-
-// exports.findAllPublished = (req, res) => {
-
 // };
