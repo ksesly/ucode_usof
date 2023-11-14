@@ -123,11 +123,11 @@ exports.updateAvatar = (req, res) => {
 				const mimeType = profilePictureFile.type;
 				const fileExtension = mime.extension(mimeType);
 
-				// Generate a unique filename with the correct extension
+				
 				const uniqueFileName =
 					'avatar_' + Date.now() + '.' + fileExtension;
 
-				// Rename the file to include the extension
+				
 				const newPath = path.join(
 					path.dirname(profilePicturePath),
 					uniqueFileName
