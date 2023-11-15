@@ -99,9 +99,7 @@ exports.getLikesUnderPost = (req, res) => {
 				})
 				.catch((err) => {
 					res.status(500).send({
-						message:
-							'error finding likes under the post id= ' +
-							id,
+						message: 'error finding likes under the post id= ' + id,
 					});
 				});
 		})
