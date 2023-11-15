@@ -3,6 +3,7 @@ const User = require('../models/userModel');
 const Comment = require('../models/commentModel');
 const jwt = require('jsonwebtoken');
 const Like = require('../models/likeModel');
+const Category = require('../models/categoryModel');
 
 exports.getAllPosts = (req, res) => {
 	Post.findAll()
@@ -56,7 +57,7 @@ exports.createComment = (req, res) => {
 	}
 	Post.findByPk(id)
 		.then((data) => {
-			console.log("data FROM CONSOLE", data);
+			console.log('data FROM CONSOLE', data);
 			const comment = {
 				content: req.body.content,
 				author: data.author,
@@ -93,8 +94,14 @@ exports.getLikesUnderPost = (req, res) => {
 
 	Post.findByPk(id)
 		.then((data) => {
-			Like.findAll()
+			Like.findAll({
+				where: {
+					comment_id: null,
+				},
+			})
 				.then((likeData) => {
+					console.log(likeData);
+
 					res.send(likeData);
 				})
 				.catch((err) => {
@@ -112,7 +119,7 @@ exports.getLikesUnderPost = (req, res) => {
 };
 
 exports.createPost = (req, res) => {
-	if (!req.body.title || !req.body.content) {
+	if (!req.body.title || !req.body.content || !req.body.categories) {
 		res.status(400).send({
 			message: 'Fields cannot be empty!',
 		});
@@ -123,28 +130,43 @@ exports.createPost = (req, res) => {
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
 		(err, data) => {
-			User.findByPk(data.id)
-				.then((info) => {
-					const post = {
-						author: data.login,
-						title: req.body.title,
-						content: req.body.content,
-						categories: req.body.categories,
-						author_id: data.id,
-					};
-					Post.create(post)
-						.then((newPost) => {
-							res.send({
-								message: 'Creation successful',
-								newPost,
-							});
+			Category.findOne({
+				where: {
+					title: req.body.categories,
+				},
+			})
+				.then((categoryData) => {
+					User.findByPk(data.id)
+						.then((info) => {
+							const post = {
+								author: data.login,
+								title: req.body.title,
+								content: req.body.content,
+								categoryName: req.body.categories,
+								author_id: data.id,
+							};
+							Post.create(post)
+								.then((newPost) => {
+									newPost.addCategory(categoryData);
+									res.send({
+										message: 'Creation successful',
+										newPost,
+									});
+								})
+								.catch((err) => {
+									console.error('Sequelize Error:', err);
+									res.status(500).send({
+										message:
+											err.massage ||
+											'Some errors while creation the Post!',
+									});
+								});
 						})
 						.catch((err) => {
-							console.error('Sequelize Error:', err);
 							res.status(500).send({
 								message:
 									err.massage ||
-									'Some errors while creation the Post!',
+									'Some errors while creation the Post!!!!',
 							});
 						});
 				})
@@ -152,7 +174,7 @@ exports.createPost = (req, res) => {
 					res.status(500).send({
 						message:
 							err.massage ||
-							'Some errors while creation the Post!!!!',
+							'Some errors while find the Category!!!!',
 					});
 				});
 		}
@@ -161,6 +183,12 @@ exports.createPost = (req, res) => {
 
 exports.createLike = (req, res) => {
 	const id = req.params.post_id;
+	if (!req.body.type) {
+		res.status(400).send({
+			message: 'Fields cannot be empty!',
+		});
+		return;
+	}
 	jwt.verify(
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
@@ -178,7 +206,7 @@ exports.createLike = (req, res) => {
 									author: data.author,
 									author_id: data.author_id,
 									post_id: data.post_id,
-									type: 'like',
+									type: req.body.type,
 								};
 								Like.create(like)
 									.then((newLike) => {

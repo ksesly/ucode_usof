@@ -15,7 +15,7 @@ module.exports = (app) => {
 	router.post('/:post_id/comments', posts.createComment);
 	router.get('/:post_id/categories', ); // get all categories associated with the specific post
 	router.get('/:post_id/like', posts.getLikesUnderPost); // get all likes under the post
-	router.post('/', posts.createPost); // create a new post [title, content, categoris]
+	router.post('/', posts.createPost); 
 	router.post('/:post_id/like', posts.createLike); 
 	router.patch('/:post_id', posts.updatePost); 
 	router.delete('/:post_id', posts.deletePost); 

@@ -4,7 +4,7 @@ const Post = require('../models/postModel');
 const jwt = require('jsonwebtoken');
 
 exports.getComment = (req, res) => {
-    const id = req.params.comment_id;
+	const id = req.params.comment_id;
 	Comment.findByPk(id)
 		.then((data) => {
 			if (data) res.send(data);
@@ -22,17 +22,22 @@ exports.getComment = (req, res) => {
 };
 
 exports.getLikeUnderComment = (req, res) => {
-    const id = req.params.comment_id;
+	const id = req.params.comment_id;
 
 	Comment.findByPk(id)
 		.then((data) => {
-			Like.findAll()
+			Like.findAll({
+				where: {
+					post_id: null,
+				},
+			})
 				.then((likeData) => {
 					res.send(likeData);
 				})
 				.catch((err) => {
 					res.status(500).send({
-						message: 'error finding likes under the Comment id= ' + id,
+						message:
+							'error finding likes under the Comment id= ' + id,
 					});
 				});
 		})
@@ -45,7 +50,7 @@ exports.getLikeUnderComment = (req, res) => {
 };
 
 exports.createLikeUnderComment = (req, res) => {
-    const id = req.params.comment_id;
+	const id = req.params.comment_id;
 	jwt.verify(
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
@@ -57,7 +62,7 @@ exports.createLikeUnderComment = (req, res) => {
 					if (!aboutLike) {
 						Comment.findByPk(id)
 							.then((data) => {
-								console.log("AAAAAAAAAAAAAAAAAA", data);
+								console.log('AAAAAAAAAAAAAAAAAA', data);
 								const like = {
 									content: req.body.content,
 									author: data.author,
@@ -68,8 +73,7 @@ exports.createLikeUnderComment = (req, res) => {
 								Like.create(like)
 									.then((newLike) => {
 										res.send({
-											message:
-												'Like creation successful',
+											message: 'Like creation successful',
 											newLike,
 										});
 									})
@@ -108,7 +112,7 @@ exports.createLikeUnderComment = (req, res) => {
 };
 
 exports.updateComment = (req, res) => {
-    const id = req.params.comment_id;
+	const id = req.params.comment_id;
 	Comment.update(req.body, {
 		where: { comment_id: id },
 	})
@@ -131,7 +135,7 @@ exports.updateComment = (req, res) => {
 };
 
 exports.deleteComment = (req, res) => {
-    const id = req.params.comment_id;
+	const id = req.params.comment_id;
 
 	Comment.destroy({
 		where: { comment_id: id },
@@ -155,14 +159,14 @@ exports.deleteComment = (req, res) => {
 };
 
 exports.deleteLikeUnderComment = (req, res) => {
-    const id = req.params.comment_id;
+	const id = req.params.comment_id;
 
 	jwt.verify(
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
 		(err, userData) => {
 			Like.findOne({
-				where: { comment_id: id },
+				where: { comment_id: id, post_id: null },
 			})
 				.then((aboutLike) => {
 					console.log(aboutLike);
