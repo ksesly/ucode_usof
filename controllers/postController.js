@@ -56,12 +56,12 @@ exports.createComment = (req, res) => {
 	}
 	Post.findByPk(id)
 		.then((data) => {
-			// console.log("data FROM CONSOLE", data);
+			console.log("data FROM CONSOLE", data);
 			const comment = {
 				content: req.body.content,
 				author: data.author,
-				author_id: data.id,
-				post_id: id,
+				author_id: data.author_id,
+				post_id: data.post_id,
 			};
 			Comment.create(comment)
 				.then((newComment) => {
@@ -177,7 +177,7 @@ exports.createLike = (req, res) => {
 									content: req.body.content,
 									author: data.author,
 									author_id: data.author_id,
-									post_id: id,
+									post_id: data.post_id,
 									type: 'like',
 								};
 								Like.create(like)
