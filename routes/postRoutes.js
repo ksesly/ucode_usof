@@ -8,18 +8,18 @@ module.exports = (app) => {
 	//public 
 	router.get('/', posts.getAllPosts); 
 	router.get('/:post_id', posts.getOnePost); 
-	router.get('/:post_id/comments',); // get all comments
+	router.get('/:post_id/comments', posts.getAllComments);
 
 	// for users
 	router.use(preveliges.protectedRoute);
-	router.post('/:post_id/comments', ); // create a new comment. [content] required
+	router.post('/:post_id/comments', posts.createComment);
 	router.get('/:post_id/categories', ); // get all categories associated with the specific post
-	router.get('/:post_id/like', ); // get all likes under the post
+	router.get('/:post_id/like', posts.getLikesUnderPost); // get all likes under the post
 	router.post('/', posts.createPost); // create a new post [title, content, categoris]
-	router.post('/:post_id/like', ); // create a new like under the post
+	router.post('/:post_id/like', posts.createLike); 
 	router.patch('/:post_id', posts.updatePost); 
 	router.delete('/:post_id', posts.deletePost); 
-	router.delete('/:post_id/like', ); // delete a like under the post
+	router.delete('/:post_id/like', posts.deliteLikeUnderPost); 
 
 	app.use('/api/posts', router);
 };

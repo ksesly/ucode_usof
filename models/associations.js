@@ -1,8 +1,41 @@
-// const sequelize = require('../db');
-// const User = require('./userModel');
-// const Post = require('./postModel');
-// const Category = require('./categoryModel');
-// const Comment = require('./commentModel');
-// const Like = require('./likeModel');
+const User = require('./userModel');
+const Post = require('./postModel');
+const Category = require('./categoryModel');
+const Comment = require('./commentModel');
+const Like = require('./likeModel');
 
+User.hasMany(Post, { foreignKey: 'author_id' });
+Post.belongsTo(User, { foreignKey: 'author_id' });
 
+User.hasMany(Comment, { foreignKey: 'author_id' });
+Comment.belongsTo(User, { foreignKey: 'author_id' });
+
+User.hasMany(Like, { foreignKey: 'author_id' });
+Like.belongsTo(User, { foreignKey: 'author_id' });
+
+Post.belongsToMany(Category, {
+	through: {
+		model: 'post_category',
+		uniqueKey: 'post_category_id',
+	},
+	foreignKey: 'post_id',
+	otherKey: 'category_id',
+});
+
+Category.belongsToMany(Post, {
+	through: {
+		model: 'post_category',
+		uniqueKey: 'post_category_id', 
+	},
+	foreignKey: 'category_id',
+	otherKey: 'post_id',
+});
+
+Post.hasMany(Comment, { foreignKey: 'post_id' });
+Comment.belongsTo(Post, { foreignKey: 'post_id' });
+
+Post.hasMany(Like, { foreignKey: 'post_id' });
+Like.belongsTo(Post, { foreignKey: 'post_id' });
+
+Comment.hasMany(Like, { foreignKey: 'comment_id' });
+Like.belongsTo(Comment, { foreignKey: 'comment_id' });
