@@ -87,7 +87,29 @@ exports.createComment = (req, res) => {
 		});
 };
 
-exports.getCategoriesFromPost = (req, res) => {};
+exports.getCategoriesFromPost = (req, res) => {
+	const postId = req.params.post_id;
+
+	Post.findByPk(postId)
+		.then((post) => {
+			post.getCategories()
+				.then((categories) => {
+					res.send(categories);
+				})
+				.catch((err) => {
+					res.status(500).send({
+						message:
+							'Error retrieving categories for the post id= ' +
+							postId,
+					});
+				});
+		})
+		.catch((err) => {
+			res.status(500).send({
+				message: 'Error retrieving the post with id ' + postId,
+			});
+		});
+};
 
 exports.getLikesUnderPost = (req, res) => {
 	const id = req.params.post_id;
@@ -119,9 +141,15 @@ exports.getLikesUnderPost = (req, res) => {
 };
 
 exports.createPost = (req, res) => {
-	if (!req.body.title || !req.body.content || !req.body.categories) {
+	if (
+		!req.body.title ||
+		!req.body.content ||
+		!req.body.categories ||
+		!Array.isArray(req.body.categories)
+	) {
 		res.status(400).send({
-			message: 'Fields cannot be empty!',
+			message:
+				'Fields cannot be empty, and categories should be an array!',
 		});
 		return;
 	}
@@ -130,51 +158,94 @@ exports.createPost = (req, res) => {
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
 		(err, data) => {
-			Category.findOne({
-				where: {
-					title: req.body.categories,
-				},
-			})
-				.then((categoryData) => {
-					User.findByPk(data.id)
-						.then((info) => {
-							const post = {
-								author: data.login,
-								title: req.body.title,
-								content: req.body.content,
-								categoryName: req.body.categories,
-								author_id: data.id,
-							};
-							Post.create(post)
-								.then((newPost) => {
-									newPost.addCategory(categoryData);
-									res.send({
-										message: 'Creation successful',
-										newPost,
-									});
+			if (err) {
+				res.status(401).send({
+					message: 'Unauthorized: Invalid token',
+				});
+				return;
+			}
+
+			User.findByPk(data.id)
+				.then((info) => {
+					const post = {
+						author: data.login,
+						title: req.body.title,
+						content: req.body.content,
+						author_id: data.id,
+					};
+
+					Post.create(post)
+						.then((newPost) => {
+							Category.findAll({
+								where: {
+									title: req.body.categories,
+								},
+							})
+								.then((categoryData) => {
+									const categoryNames = categoryData.map(
+										(category) => category.title
+									);
+
+									newPost
+										.update({ categoryName: categoryNames })
+										.then(() => {
+											newPost
+												.addCategories(categoryData)
+												.then(() => {
+													res.send({
+														message:
+															'Creation successful',
+														newPost: {
+															...newPost.toJSON(),
+															categoryName:
+																categoryNames,
+														},
+													});
+												})
+												.catch((err) => {
+													console.error(
+														'Sequelize Error:',
+														err
+													);
+													res.status(500).send({
+														message:
+															'Error adding categories to the post',
+													});
+												});
+										})
+										.catch((err) => {
+											console.error(
+												'Sequelize Error:',
+												err
+											);
+											res.status(500).send({
+												message:
+													'Error updating categoryName field',
+											});
+										});
 								})
 								.catch((err) => {
 									console.error('Sequelize Error:', err);
 									res.status(500).send({
-										message:
-											err.massage ||
-											'Some errors while creation the Post!',
+										message: 'Error finding categories',
 									});
 								});
 						})
 						.catch((err) => {
+							console.error('Sequelize Error:', err);
 							res.status(500).send({
 								message:
-									err.massage ||
-									'Some errors while creation the Post!!!!',
+									err.message ||
+									'Some errors while creating the Post!',
 							});
 						});
 				})
 				.catch((err) => {
+					console.error('Sequelize Error:', err);
 					res.status(500).send({
 						message:
-							err.massage ||
-							'Some errors while find the Category!!!!',
+							err.message ||
+							'Some errors while finding the user!',
 					});
 				});
 		}

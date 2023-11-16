@@ -1,7 +1,7 @@
 const Category = require('../models/categoryModel');
 
 exports.getAllCategories = (req, res) => {
-    Category.findAll()
+	Category.findAll()
 		.then((data) => {
 			res.send(data);
 		})
@@ -13,7 +13,7 @@ exports.getAllCategories = (req, res) => {
 };
 
 exports.getCategory = (req, res) => {
-    const id = req.params.category_id;
+	const id = req.params.category_id;
 	Category.findByPk(id)
 		.then((data) => {
 			if (data) res.send(data);
@@ -30,7 +30,35 @@ exports.getCategory = (req, res) => {
 		});
 };
 
-exports.getCategoryPosts = (req, res) => {};
+exports.getCategoryPosts = (req, res) => {
+	const id = req.params.category_id;
+
+	Category.findOne({
+		where: { category_id: id },
+	})
+		.then((category) => {
+			if (!category) {
+				return res.status(404).send({
+					message: 'Category not found',
+				});
+			}
+
+			
+			return category.getPosts();
+		})
+		.then((posts) => {
+			res.send({
+				message: 'Posts retrieved successfully',
+				posts,
+			});
+		})
+		.catch((error) => {
+			console.error('Sequelize Error:', error);
+			res.status(500).send({
+				message: 'Error retrieving posts',
+			});
+		});
+};
 
 exports.createCategory = (req, res) => {
 	if (!req.body.title) {
@@ -60,7 +88,7 @@ exports.createCategory = (req, res) => {
 };
 
 exports.updateCategory = (req, res) => {
-    const id = req.params.category_id;
+	const id = req.params.category_id;
 	Category.update(req.body, {
 		where: { category_id: id },
 	})
@@ -83,7 +111,7 @@ exports.updateCategory = (req, res) => {
 };
 
 exports.deleteCategory = (req, res) => {
-    const id = req.params.category_id;
+	const id = req.params.category_id;
 
 	Category.destroy({
 		where: { category_id: id },
