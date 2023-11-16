@@ -23,7 +23,7 @@ const Post = sequelize.define(
 			type: DataTypes.TEXT,
 		},
 		categoryName: {
-			type: DataTypes.STRING,
+			type: DataTypes.ARRAY(DataTypes.STRING),
 		},
 	},
 	{

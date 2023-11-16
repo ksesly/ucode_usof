@@ -13,8 +13,8 @@ module.exports = (app) => {
 	// for users
 	router.use(preveliges.protectedRoute);
 	router.post('/:post_id/comments', posts.createComment);
-	router.get('/:post_id/categories', ); // get all categories associated with the specific post
-	router.get('/:post_id/like', posts.getLikesUnderPost); // get all likes under the post
+	router.get('/:post_id/categories', posts.getCategoriesFromPost); 
+	router.get('/:post_id/like', posts.getLikesUnderPost); 
 	router.post('/', posts.createPost); 
 	router.post('/:post_id/like', posts.createLike); 
 	router.patch('/:post_id', posts.updatePost); 
