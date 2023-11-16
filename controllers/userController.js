@@ -82,84 +82,81 @@ exports.create = (req, res) => {
 
 exports.updateAvatar = (req, res) => {
 	const form = formidable({
-		multiples: true,
-		uploadDir: path.join(__dirname, '../static/avatars'),
+	  multiples: true,
+	  uploadDir: path.join(__dirname, '../static/avatars'),
 	});
-
+  
 	console.log('tuta rabotaet 1');
-
+  
 	jwt.verify(
-		req.headers.authorization.split(' ')[1],
-		process.env.secretKey,
-		(err, decoded) => {
-			if (err) {
-				return res.status(401).send({
-					message: 'Unauthorized',
-				});
-			}
-
-			const userIdFromToken = decoded.id;
-
-			console.log('tuta rabotaet 2');
-
-			form.parse(req, (err, fields, files) => {
-				console.log('tuta rabotaet 3');
-				if (err) {
-					return res.status(500).send({
-						message: 'Error parsing form: ' + err.message,
-					});
-				}
-
-				const profilePictureFile = files.profilePicture;
-
-				if (!profilePictureFile) {
-					return res.status(400).send({
-						message: 'Avatar file is required!',
-					});
-				}
-
-				const profilePicturePath = profilePictureFile.path;
-				console.log(profilePicturePath, 'IPIPUPIPIPIPIPI')
-				const mimeType = profilePictureFile.type;
-				const fileExtension = mime.extension(mimeType);
-
-				const uniqueFileName =
-					'avatar_' + Date.now() + '.' + fileExtension;
-
-				
-				const newPath = path.join(
-					path.dirname(profilePicturePath),
-					uniqueFileName
-				);
-				
-				fs.renameSync(profilePicturePath, newPath);
-
-				User.update(
-					{ profilePicture: `/static/avatar/${uniqueFileName}` },
-					{
-						where: { user_id: userIdFromToken },
-					}
-				)
-					.then((data) => {
-						if (data == 1) {
-							res.send({
-								message: 'Avatar was updated successfully!',
-							});
-						} else {
-							res.status(404).send({
-								message: `Cannot update the user's avatar with id=${id}. User not found.`,
-							});
-						}
-					})
-					.catch((err) => {
-						res.status(500).send({
-							message: `Error updating the user's avatar with id ${id}: ${err.message}`,
-						});
-					});
-			});
+	  req.headers.authorization.split(' ')[1],
+	  process.env.secretKey,
+	  (err, decoded) => {
+		if (err) {
+		  return res.status(401).send({
+			message: 'Unauthorized',
+		  });
 		}
+  
+		const userIdFromToken = decoded.id;
+  
+		console.log('tuta rabotaet 2');
+  
+		form.parse(req, (err, fields, files) => {
+		  console.log('tuta rabotaet 3');
+		  if (err) {
+			return res.status(500).send({
+			  message: 'Error parsing form: ' + err.message,
+			});
+		  }
+  
+		  const profilePictureFile = files.profilePicture;
+  
+		  if (!profilePictureFile) {
+			return res.status(400).send({
+			  message: 'Avatar file is required!',
+			});
+		  }
+  
+		  const profilePicturePath = profilePictureFile.path;
+		  console.log(profilePicturePath, 'IPIPUPIPIPIPIPI');
+		  const mimeType = profilePictureFile.type;
+		  const fileExtension = mime.extension(mimeType);
+  
+		  const uniqueFileName =
+			'avatar_' + Date.now() + '.' + fileExtension;
+  
+		  const newPath = `/static/avatars/${uniqueFileName}`;
+  
+		  fs.renameSync(profilePicturePath, path.join(__dirname, `../${newPath}`));
+  
+		  User.update(
+			{ profilePicture: newPath },
+			{
+			  where: { user_id: userIdFromToken },
+			}
+		  )
+			.then((data) => {
+			  if (data == 1) {
+				res.send({
+				  message: 'Avatar was updated successfully!',
+				});
+			  } else {
+				res.status(404).send({
+				  message: `Cannot update the user's avatar with id=${userIdFromToken}. User not found.`,
+				});
+			  }
+			})
+			.catch((err) => {
+			  res.status(500).send({
+				message: `Error updating the user's avatar with id ${userIdFromToken}: ${err.message}`,
+			  });
+			});
+		});
+	  }
 	);
-};
+  };
+  
 
 exports.update = (req, res) => {
 	const id = req.params.user_id;
