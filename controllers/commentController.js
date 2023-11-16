@@ -1,6 +1,7 @@
 const Comment = require('../models/commentModel');
 const Like = require('../models/likeModel');
 const Post = require('../models/postModel');
+const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 
 exports.getComment = (req, res) => {
@@ -55,6 +56,7 @@ exports.createLikeUnderComment = (req, res) => {
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
 		(err, userData) => {
+			const authorId = userData.id;
 			Like.findOne({
 				where: { comment_id: id },
 			})
@@ -68,10 +70,34 @@ exports.createLikeUnderComment = (req, res) => {
 									author: data.author,
 									author_id: data.author_id,
 									comment_id: data.comment_id,
-									type: 'like',
+									type: req.body.type,
 								};
 								Like.create(like)
 									.then((newLike) => {
+										User.findByPk(authorId)
+											.then((author) => {
+												if (req.body.type === 'like') {
+													author.update({
+														rating:
+															author.rating + 1,
+													});
+												} else {
+													author.update({
+														rating:
+															author.rating - 1,
+													});
+												}
+											})
+											.catch((err) => {
+												console.error(
+													'Sequelize Error:',
+													err
+												);
+												res.status(500).send({
+													message:
+														'Error updating author rating!',
+												});
+											});
 										res.send({
 											message: 'Like creation successful',
 											newLike,
@@ -165,6 +191,7 @@ exports.deleteLikeUnderComment = (req, res) => {
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
 		(err, userData) => {
+			const authorId = userData.id;
 			Like.findOne({
 				where: { comment_id: id, post_id: null },
 			})
@@ -179,6 +206,30 @@ exports.deleteLikeUnderComment = (req, res) => {
 									},
 								})
 									.then((newLike) => {
+										User.findByPk(authorId)
+											.then((author) => {
+												if (aboutLike.type === 'like') {
+													author.update({
+														rating:
+															author.rating - 1,
+													});
+												} else {
+													author.update({
+														rating:
+															author.rating + 1,
+													});
+												}
+											})
+											.catch((err) => {
+												console.error(
+													'Sequelize Error:',
+													err
+												);
+												res.status(500).send({
+													message:
+														'Error updating author rating!',
+												});
+											});
 										res.send({
 											message: 'Like successfully delete',
 										});

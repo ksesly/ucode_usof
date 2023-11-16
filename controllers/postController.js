@@ -260,10 +260,12 @@ exports.createLike = (req, res) => {
 		});
 		return;
 	}
+
 	jwt.verify(
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
 		(err, userData) => {
+			const authorId = userData.id;
 			Like.findOne({
 				where: { post_id: id },
 			})
@@ -281,9 +283,33 @@ exports.createLike = (req, res) => {
 								};
 								Like.create(like)
 									.then((newLike) => {
+										User.findByPk(authorId)
+											.then((author) => {
+												if (req.body.type === 'like') {
+													author.update({
+														rating:
+															author.rating + 1,
+													});
+												} else {
+													author.update({
+														rating:
+															author.rating - 1,
+													});
+												}
+											})
+											.catch((err) => {
+												console.error(
+													'Sequelize Error:',
+													err
+												);
+												res.status(500).send({
+													message:
+														'Error updating author rating!',
+												});
+											});
 										res.send({
 											message:
-												'Comment creation successful',
+												'Like creation successful',
 											newLike,
 										});
 									})
@@ -396,6 +422,7 @@ exports.deliteLikeUnderPost = (req, res) => {
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
 		(err, userData) => {
+			const authorId = userData.id;
 			Like.findOne({
 				where: { post_id: id },
 			})
@@ -410,8 +437,33 @@ exports.deliteLikeUnderPost = (req, res) => {
 									},
 								})
 									.then((newLike) => {
+										User.findByPk(authorId)
+											.then((author) => {
+												if (aboutLike.type === 'like') {
+													author.update({
+														rating:
+															author.rating - 1,
+													});
+												} else {
+													author.update({
+														rating:
+															author.rating + 1,
+													});
+												}
+											})
+											.catch((err) => {
+												console.error(
+													'Sequelize Error:',
+													err
+												);
+												res.status(500).send({
+													message:
+														'Error updating author rating!',
+												});
+											});
 										res.send({
 											message: 'Like successfully delete',
+											newLike
 										});
 									})
 									.catch((err) => {
