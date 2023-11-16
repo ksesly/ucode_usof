@@ -2,6 +2,10 @@ const AdminJS = require('adminjs');
 const AdminJSExpress = require('@adminjs/express');
 const AdminJSequalize = require('@adminjs/sequelize');
 const User = require('../models/userModel');
+const Post = require('../models/postModel');
+const Comment = require('../models/commentModel');
+const Category = require('../models/categoryModel');
+
 
 const DEFAULT_ADMIN = {
 	email: 'admin@example.com',
@@ -21,7 +25,7 @@ AdminJS.registerAdapter({
 })
 
 const admin = new AdminJS({
-	resources: [User],
+	resources: [User, Post, Comment, Category],
 });
 
 const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
