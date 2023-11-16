@@ -5,6 +5,7 @@ const User = require('../models/userModel');
 const Post = require('../models/postModel');
 const Comment = require('../models/commentModel');
 const Category = require('../models/categoryModel');
+const Like = require('../models/likeModel');
 
 
 const DEFAULT_ADMIN = {
@@ -25,7 +26,7 @@ AdminJS.registerAdapter({
 })
 
 const admin = new AdminJS({
-	resources: [User, Post, Comment, Category],
+	resources: [User, Post, Comment, Category, Like],
 });
 
 const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
@@ -37,7 +38,5 @@ const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
 	},
 	null,
 )
-
-
 
 module.exports = adminRouter;
