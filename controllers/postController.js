@@ -6,15 +6,31 @@ const Like = require("../models/likeModel");
 const Category = require("../models/categoryModel");
 
 exports.getAllPosts = (req, res) => {
-    Post.findAll()
-        .then((data) => {
-            res.send(data);
-        })
-        .catch((err) => {
-            res.status(500).send({
-                message: "errrrrrrrrrrrrrrrrrrrrrrrrrror",
-            });
-        });
+    jwt.verify(
+        req.headers.authorization.split(" ")[1],
+        process.env.secretKey,
+        (err, data) => {
+            let whereClause = {
+                status: "active",
+            };
+
+            if (data.role === "admin") {
+                whereClause = {};
+            }
+
+            Post.findAll({
+                where: whereClause,
+            })
+                .then((data) => {
+                    res.send(data);
+                })
+                .catch((err) => {
+                    res.status(500).send({
+                        message: "Error finding posts",
+                    });
+                });
+        }
+    );
 };
 
 exports.getOnePost = (req, res) => {
@@ -172,6 +188,7 @@ exports.createPost = (req, res) => {
                         title: req.body.title,
                         content: req.body.content,
                         author_id: data.id,
+                        status: "active",
                     };
 
                     Post.create(post)

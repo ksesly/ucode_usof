@@ -35,7 +35,7 @@ exports.register = (req, res) => {
 	User.create(user)
 		.then((data) => {
 			const token = jwt.sign(
-				{ id: data.user_id, login: user.login },
+				{ id: data.user_id, login: user.login, role: user.role },
 				process.env.secretKey,
 				{ expiresIn: process.env.expiresTime }
 			);
@@ -72,7 +72,7 @@ exports.login = async (req, res) => {
 				console.log(result, err);
 				if (result) {
 					const token = jwt.sign(
-						{ id: data.user_id, login: data.login },
+						{ id: data.user_id, login: data.login, role: data.role },
 						process.env.secretKey,
 						{ expiresIn: process.env.expiresTime }
 					);

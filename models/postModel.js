@@ -18,6 +18,7 @@ const Post = sequelize.define(
 		},
 		status: {
 			type: DataTypes.STRING,
+			defaultValue: "active"
 		},
 		content: {
 			type: DataTypes.TEXT,
