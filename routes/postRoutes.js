@@ -2,6 +2,7 @@
 module.exports = (app) => {
 	const posts = require('../controllers/postController');
 	const preveliges = require('../helpers/protected');
+	const postAcces = require('../helpers/postAccess');
 
 	var router = require('express').Router();
 

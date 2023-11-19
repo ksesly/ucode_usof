@@ -6,27 +6,27 @@ const Post = require('../models/postModel');
 const Comment = require('../models/commentModel');
 const Category = require('../models/categoryModel');
 const Like = require('../models/likeModel');
-
+const RP = require('../models/resetPasswordModel');
 
 const DEFAULT_ADMIN = {
 	email: 'admin@example.com',
 	password: 'password',
-}
+};
 
 const authenticate = async (email, password) => {
 	if (email === DEFAULT_ADMIN.email && password === DEFAULT_ADMIN.password) {
-		return Promise.resolve(DEFAULT_ADMIN)
+		return Promise.resolve(DEFAULT_ADMIN);
 	}
 	return null;
-}
+};
 
 AdminJS.registerAdapter({
 	Resource: AdminJSequalize.Resource,
 	Database: AdminJSequalize.Database,
-})
+});
 
 const admin = new AdminJS({
-	resources: [User, Post, Comment, Category, Like],
+	resources: [User, RP, Post, Category, Comment, Like]
 });
 
 const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
@@ -36,7 +36,7 @@ const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
 		cookieName: 'adminjs',
 		cookiePassword: 'sessionsecret',
 	},
-	null,
-)
+	null
+);
 
 module.exports = adminRouter;

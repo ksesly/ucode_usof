@@ -58,17 +58,17 @@ exports.createLikeUnderComment = (req, res) => {
 		(err, userData) => {
 			const authorId = userData.id;
 			Like.findOne({
-				where: { comment_id: id },
+				where: { comment_id: id, author_id: authorId },
 			})
 				.then((aboutLike) => {
 					if (!aboutLike) {
 						Comment.findByPk(id)
 							.then((data) => {
-								console.log('AAAAAAAAAAAAAAAAAA', data);
+								// console.log('AAAAAAAAAAAAAAAAAA', data);
 								const like = {
 									content: req.body.content,
-									author: data.author,
-									author_id: data.author_id,
+									author: userData.login,
+									author_id: userData.author_id,
 									comment_id: data.comment_id,
 									type: req.body.type,
 								};
