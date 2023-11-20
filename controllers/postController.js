@@ -9,114 +9,130 @@ const Like = require('../models/likeModel');
 const Category = require('../models/categoryModel');
 
 exports.getAllPosts = (req, res) => {
-	const {
-		sort = 'likes',
-		order = 'DESC',
-		categories,
-		dateFrom,
-		dateTo,
-	} = req.query;
+    const {
+        sort = 'likes',
+        order = 'DESC',
+        categories,
+        dateFrom,
+        dateTo,
+        page = 1,
+        pageSize = 10,
+    } = req.query;
 
-	let orderBy;
+    const offset = (page - 1) * pageSize;
+    const limit = pageSize;
 
-	if (sort === 'date') orderBy = [['createdAt', order]];
-	else orderBy = [['likes', order]];
+    let orderBy;
 
-	let where = {};
-	let whereAccess = {};
+    if (sort === 'date') orderBy = [['createdAt', order]];
+    else orderBy = [['likes', order]];
 
-	if (dateFrom && dateTo) {
-		where.createdAt = {
-			[Op.between]: [dateFrom, dateTo],
-		};
-	}
+    let where = {};
+    let whereAccess = {};
 
-	if (categories) {
-		where.title = categories;
-	}
+    if (dateFrom && dateTo) {
+        where.createdAt = {
+            [Op.between]: [dateFrom, dateTo],
+        };
+    }
 
-	const categoryInclude = categories
-		? [
-				{
-					model: Category,
-					as: 'categories',
-					where: { title: categories },
-				},
-		  ]
-		: [
-				{
-					model: Category,
-					as: 'categories',
-					required: false,
-				},
-		  ];
+    if (categories) {
+        where.title = categories;
+    }
 
-	const authHead = req.headers.authorization;
-	if (!authHead) {
-		whereAccess = { status: 'active' };
-	} else {
-		jwt.verify(
-			req.headers.authorization.split(' ')[1],
-			process.env.secretKey,
-			(err, userData) => {
-				if (err) {
-					res.status(400).send({
-						message: 'nononon, kudaaaaaaaa',
-						err,
-					});
-				} else {
-					const { role } = userData || {};
-					whereAccess =
-						role === 'user'
-							? {
-									[Op.or]: [
-										{
-											status: 'inactive',
-											author_id: userData.id,
-										},
-										{ status: 'active' },
-									],
-							  }
-							: { status: 'active' };
+    const categoryInclude = categories
+        ? [
+            {
+                model: Category,
+                as: 'categories',
+                where: { title: categories },
+            },
+        ]
+        : [
+            {
+                model: Category,
+                as: 'categories',
+                required: false,
+            },
+        ];
 
-				
-				}
-			}
-		);
-	}
-	console.log(whereAccess);
-	Post.findAll({
-		where: { ...where, ...whereAccess },
-		attributes: [
-			[
-				sequelize.literal(
-					'(SELECT COUNT(*) FROM `Like` WHERE `Like`.`post_id` = `Post`.`post_id`)'
-				),
-				'likes',
-			],
-			'post_id',
-			'createdAt',
-			'updatedAt',
-			'author_id',
-			'status',
-			'author', 
-			'title',  
-			'content'
-		],
-		order: orderBy,
-		include: categoryInclude,
-	})
+    const authHead = req.headers.authorization;
+    if (!authHead) {
+        whereAccess = { status: 'active' };
+    } else {
+        jwt.verify(
+            req.headers.authorization.split(' ')[1],
+            process.env.secretKey,
+            (err, userData) => {
+                if (err) {
+                    res.status(400).send({
+                        message: 'nononon, kudaaaaaaaa',
+                        err,
+                    });
+                } else {
+                    const { role } = userData || {};
+                    whereAccess =
+                        role === 'user'
+                            ? {
+                                [Op.or]: [
+                                    {
+                                        status: 'inactive',
+                                        author_id: userData.id,
+                                    },
+                                    { status: 'active' },
+                                ],
+                            }
+                            : { status: 'active' };
+                }
+            }
+        );
+    }
 
-		.then((data) => {
-			res.send(data);
-		})
-		.catch((err) => {
-			console.log(err);
-			res.status(500).send({
-				message: 'Error finding posts',
-			});
-		});
+    Post.findAndCountAll({
+        where: { ...where, ...whereAccess },
+        attributes: [
+            [
+                sequelize.literal(
+                    '(SELECT COUNT(*) FROM `Like` WHERE `Like`.`post_id` = `Post`.`post_id`)'
+                ),
+                'likes',
+            ],
+            'post_id',
+            'createdAt',
+            'updatedAt',
+            'author',
+            'title',
+            'content',
+            'status',
+        ],
+        order: orderBy,
+        include: categoryInclude,
+        limit: limit,
+        offset: offset,
+    })
+        .then((result) => {
+            const data = result.rows;
+            const count = result.count;
+            const totalPages = Math.ceil(count / pageSize);
+
+            res.send({
+                data: data,
+                pagination: {
+                    totalItems: count,
+                    totalPages: totalPages,
+                    currentPage: page,
+                    pageSize: pageSize,
+                },
+            });
+        })
+        .catch((err) => {
+            console.log(err);
+            res.status(500).send({
+                message: 'Error finding posts',
+            });
+        });
 };
+
 
 exports.getOnePost = (req, res) => {
 	const id = req.params.post_id;
