@@ -99,6 +99,9 @@ exports.getAllPosts = (req, res) => {
 			'updatedAt',
 			'author_id',
 			'status',
+			'author', 
+			'title',  
+			'content'
 		],
 		order: orderBy,
 		include: categoryInclude,
