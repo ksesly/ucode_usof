@@ -18,6 +18,9 @@ const Comment = sequelize.define(
 			type: DataTypes.STRING,
 			allowNull: false,
 		},
+		parent_comment_id: {
+			type: DataTypes.STRING,
+		},
 	},
 	{
 		freezeTableName: true,

@@ -11,8 +11,8 @@ const PORT = process.env.PORT || 3000;
 const app = express();
 
 require('./models/associations');
-const adminRouter = require('./helpers/admin');
-app.use('/admin', adminRouter);
+// const adminRouter = require('./helpers/admin');
+// app.use('/admin', adminRouter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

@@ -27,7 +27,7 @@ Post.belongsToMany(Category, {
 Category.belongsToMany(Post, {
 	through: {
 		model: postCategory,
-		uniqueKey: 'post_category_id', 
+		uniqueKey: 'post_category_id',
 	},
 	foreignKey: 'category_id',
 	otherKey: 'post_id',
@@ -42,12 +42,12 @@ Like.belongsTo(Post, { foreignKey: 'post_id' });
 Comment.hasMany(Like, { foreignKey: 'comment_id' });
 Like.belongsTo(Comment, { foreignKey: 'comment_id' });
 
-module.exports = {
-	User,
-	Post,
-	Comment,
-	Like,
-	Category,
-	postCategory,
-	RP
-};
+// module.exports = {
+// 	User,
+// 	Post,
+// 	Comment,
+// 	Like,
+// 	Category,
+// 	postCategory,
+// 	RP
+// };

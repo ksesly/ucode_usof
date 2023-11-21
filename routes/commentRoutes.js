@@ -12,6 +12,9 @@ module.exports = (app) => {
 	router.delete('/:comment_id', comments.deleteComment); 
 	router.delete('/:comment_id/like', comments.deleteLikeUnderComment);
 
+	router.get('/:comment_id/answer', comments.getAnswers); 
+	router.post('/:comment_id/answer', comments.createAnswerUnderComment); 
+
 
 	app.use('/api/comments', router);
 };

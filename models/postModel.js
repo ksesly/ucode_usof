@@ -18,13 +18,14 @@ const Post = sequelize.define(
 		},
 		status: {
 			type: DataTypes.STRING,
-			defaultValue: "active"
+			defaultValue: 'active',
 		},
 		content: {
 			type: DataTypes.TEXT,
 		},
 		categoryName: {
-			type: DataTypes.ARRAY(DataTypes.STRING),
+			type: DataTypes.JSON,
+			
 		},
 	},
 	{

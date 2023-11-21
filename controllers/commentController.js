@@ -267,3 +267,60 @@ exports.deleteLikeUnderComment = (req, res) => {
 		}
 	);
 };
+
+exports.getAnswers = (req, res) => {
+	const id = req.params.comment_id;
+	Comment.findAll({
+		where: {
+			parent_comment_id: id
+		}
+	})
+		.then((data) => {
+			res.send(data);
+		})
+		.catch((err) => {
+			res.status(500).send({
+				message: 'errrrrrrrrrrrrrrrrrrrrrrrrrror finding all comments',
+			});
+		});
+};
+
+exports.createAnswerUnderComment = (req, res) => {
+	const id = req.params.comment_id;
+	if (!req.body.content) {
+		res.status(400).send({
+			message: 'Fields cannot be empty!',
+		});
+		return;
+	}
+	Comment.findByPk(id)
+		.then((data) => {
+			console.log('data FROM CONSOLE', data);
+			const comment = {
+				content: req.body.content,
+				author: data.author,
+				author_id: data.author_id,
+				parent_comment_id: data.comment_id,
+			};
+			Comment.create(comment)
+				.then((newComment) => {
+					res.send({
+						message: 'Answer creation successful',
+						newComment,
+					});
+				})
+				.catch((err) => {
+					console.error('Sequelize Error:', err);
+					res.status(500).send({
+						message:
+							err.massage ||
+							'Some errors while creation the Answer!',
+					});
+				});
+		})
+		.catch((err) => {
+			res.status(500).send({
+				message: 'Error retreiving the comment with id' + id,
+			});
+		});
+};
