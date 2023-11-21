@@ -5,6 +5,7 @@ const Comment = require('./commentModel');
 const Like = require('./likeModel');
 const postCategory = require('./postCategory');
 const RP = require('./resetPasswordModel');
+const Favorite = require('./favoriteModel');
 
 User.hasMany(Post, { foreignKey: 'author_id' });
 Post.belongsTo(User, { foreignKey: 'author_id' });
@@ -31,6 +32,24 @@ Category.belongsToMany(Post, {
 	},
 	foreignKey: 'category_id',
 	otherKey: 'post_id',
+});
+
+User.belongsToMany(Post, {
+	through: {
+		model: Favorite,
+		uniqueKey: 'post_favorite_id',
+	},
+	foreignKey: 'user_id',
+	otherKey: 'post_id',
+});
+
+Post.belongsToMany(User, {
+	through: {
+		model: Favorite,
+		uniqueKey: 'post_favorite_id',
+	},
+	foreignKey: 'post_id',
+	otherKey: 'user_id',
 });
 
 Post.hasMany(Comment, { foreignKey: 'post_id' });

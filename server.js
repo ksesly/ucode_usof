@@ -23,6 +23,7 @@ require('./routes/authRoutes')(app);
 require('./routes/postRoutes')(app);
 require('./routes/categoriesRoutes')(app);
 require('./routes/commentRoutes')(app);
+require('./routes/favoriteRoutes')(app);
 
 app.use(bodyParser.json());
 
