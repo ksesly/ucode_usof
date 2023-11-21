@@ -61,12 +61,12 @@ Like.belongsTo(Post, { foreignKey: 'post_id' });
 Comment.hasMany(Like, { foreignKey: 'comment_id' });
 Like.belongsTo(Comment, { foreignKey: 'comment_id' });
 
-// module.exports = {
-// 	User,
-// 	Post,
-// 	Comment,
-// 	Like,
-// 	Category,
-// 	postCategory,
-// 	RP
-// };
+module.exports = {
+	User,
+	Post,
+	Comment,
+	Like,
+	Category,
+	postCategory,
+	RP
+};
