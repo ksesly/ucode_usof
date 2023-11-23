@@ -69,7 +69,7 @@ exports.login = async (req, res) => {
 	})
 		.then(async (data) => {
 			bcrypt.compare(req.body.password, data.password, (err, result) => {
-				console.log(result, err);
+				// console.log(result, err);
 				if (result) {
 					const token = jwt.sign(
 						{ id: data.user_id, login: data.login, role: data.role },

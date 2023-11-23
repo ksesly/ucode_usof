@@ -11,7 +11,7 @@ const corsOptions = {
 };
 
 const host = 'localhost';
-const PORT = process.env.PORT || 3050;
+const PORT = 3050;
 const app = express();
 
 require('./models/associations');
@@ -20,7 +20,7 @@ app.use('/admin', adminRouter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-app.use(corsOptions);
+app.use(cors(corsOptions));
 
 require('./routes/userRoutes')(app);
 require('./routes/authRoutes')(app);
