@@ -1,10 +1,14 @@
 const express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 
 const dotenv = require('dotenv');
 dotenv.config({ path: './.env' });
 
-
+const corsOptions = {
+	origin: 'http://localhost:3000',
+	credentials: true
+};
 
 const host = 'localhost';
 const PORT = process.env.PORT || 3000;
