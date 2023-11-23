@@ -11,7 +11,7 @@ const corsOptions = {
 };
 
 const host = 'localhost';
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3050;
 const app = express();
 
 require('./models/associations');
@@ -20,7 +20,7 @@ app.use('/admin', adminRouter);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(corsOptions);
 
 require('./routes/userRoutes')(app);
 require('./routes/authRoutes')(app);
@@ -33,4 +33,5 @@ app.use(bodyParser.json());
 
 app.listen(PORT, () => {
 	console.log(`Server start on http://${host}:${PORT}`);
+
 });
