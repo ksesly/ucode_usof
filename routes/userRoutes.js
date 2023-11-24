@@ -6,6 +6,7 @@ module.exports = (app) => {
 
 	router.use(preveliges.protectedRoute);
 	router.get('/', users.findAll);
+	router.get('/currentUser', users.findCurrentUser);
 	router.get('/:user_id', users.findOne);
 	router.patch('/avatar', users.updateAvatar);
     router.patch('/:user_id', users.update);
