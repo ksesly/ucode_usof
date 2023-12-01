@@ -25,7 +25,7 @@ exports.getAllPosts = (req, res) => {
     let orderBy;
 
     if (sort === 'date') orderBy = [['createdAt', order]];
-    else orderBy = [['likes', order]];
+    else orderBy = [['likes', order], ['createdAt', order]];
 
     let where = {};
     let whereAccess = {};

@@ -14,6 +14,8 @@ const host = 'localhost';
 const PORT = 3050;
 const app = express();
 
+app.use('/static/avatars', express.static(`${__dirname}/static/avatars`));
+
 require('./models/associations');
 const adminRouter = require('./helpers/admin');
 app.use('/admin', adminRouter);
