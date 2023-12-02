@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 
 exports.protectedRoute = (req, res, next) => {
 	const authorizationHeader = req.headers.authorization;
-	console.log(authorizationHeader);
+	// console.log(authorizationHeader);
 	if (!authorizationHeader) {
 		return next('Unauthorized');
 	}

@@ -13,7 +13,7 @@ exports.getAllFavorites = (req, res) => {
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
 		(err, data) => {
-			console.log(data);
+			// console.log(data);
 			User.findByPk(data.id)
 				.then((currentUser) => {
 					currentUser

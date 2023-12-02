@@ -126,7 +126,7 @@ exports.getAllPosts = (req, res) => {
             });
         })
         .catch((err) => {
-            console.log(err);
+            // console.log(err);
             res.status(500).send({
                 message: 'Error finding posts',
             });
@@ -174,7 +174,7 @@ exports.createComment = (req, res) => {
 	}
 	Post.findByPk(id)
 		.then((data) => {
-			console.log('data FROM CONSOLE', data);
+			// console.log('data FROM CONSOLE', data);
 			const comment = {
 				content: req.body.content,
 				author: data.author,
@@ -239,7 +239,7 @@ exports.getLikesUnderPost = (req, res) => {
 				},
 			})
 				.then((likeData) => {
-					console.log(likeData);
+					// console.log(likeData);
 
 					res.send(likeData);
 				})
@@ -250,7 +250,7 @@ exports.getLikesUnderPost = (req, res) => {
 				});
 		})
 		.catch((err) => {
-			console.log(err);
+			// console.log(err);
 			res.status(500).send({
 				message: 'Error retreiving the post with id' + id,
 			});
@@ -390,7 +390,7 @@ exports.createLike = (req, res) => {
 				});
 				return;
 			}
-			console.log(userData);
+			// console.log(userData);
 			const authorId = userData.id;
 
 			// Check if the current user has already liked the post
@@ -408,7 +408,7 @@ exports.createLike = (req, res) => {
 					} else {
 						Post.findByPk(id)
 							.then((data) => {
-								console.log(data);
+								// console.log(data);
 								const like = {
 									content: req.body.content,
 									author: userData.login,
@@ -459,7 +459,7 @@ exports.createLike = (req, res) => {
 									});
 							})
 							.catch((err) => {
-								console.log(err);
+								// console.log(err);
 								res.status(500).send({
 									message:
 										'Error retrieving the post with id' +
@@ -559,7 +559,7 @@ exports.deliteLikeUnderPost = (req, res) => {
 				where: { post_id: id },
 			})
 				.then((aboutLike) => {
-					console.log(aboutLike);
+					// console.log(aboutLike);
 					Post.findByPk(id)
 						.then((data) => {
 							if (aboutLike.author_id === userData.id) {

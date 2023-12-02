@@ -43,7 +43,7 @@ exports.getLikeUnderComment = (req, res) => {
 				});
 		})
 		.catch((err) => {
-			console.log(err);
+			// console.log(err);
 			res.status(500).send({
 				message: 'Error retreiving the Comment with id' + id,
 			});
@@ -113,7 +113,7 @@ exports.createLikeUnderComment = (req, res) => {
 									});
 							})
 							.catch((err) => {
-								console.log(err);
+								// console.log(err);
 								res.status(500).send({
 									message:
 										'Error retreiving the Comment with id' +
@@ -196,7 +196,7 @@ exports.deleteLikeUnderComment = (req, res) => {
 				where: { comment_id: id, post_id: null },
 			})
 				.then((aboutLike) => {
-					console.log(aboutLike);
+					// console.log(aboutLike);
 					Comment.findByPk(id)
 						.then((data) => {
 							if (aboutLike.author_id === userData.id) {
@@ -295,7 +295,7 @@ exports.createAnswerUnderComment = (req, res) => {
 	}
 	Comment.findByPk(id)
 		.then((data) => {
-			console.log('data FROM CONSOLE', data);
+			// console.log('data FROM CONSOLE', data);
 			const comment = {
 				content: req.body.content,
 				author: data.author,

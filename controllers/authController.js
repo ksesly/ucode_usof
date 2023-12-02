@@ -61,7 +61,7 @@ exports.login = async (req, res) => {
 		});
 	}
 
-	console.log(req.body);
+	// console.log(req.body);
 	User.findOne({
 		where: {
 			[Op.or]: [{ email: req.body.email }, { login: req.body.login }],
@@ -108,7 +108,7 @@ exports.logout = (req, res) => {
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
 		(err, data) => {
-			console.log(data, '!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+			// console.log(data, '!!!!!!!!!!!!!!!!!!!!!!!!!!!');
 			User.findByPk(data.id)
 
 				.then((data) => {
@@ -202,7 +202,7 @@ exports.resetPassword = (req, res) => {
 };
 
 exports.confirmPassword = (req, res) => {
-	console.log(req.params);
+	// console.log(req.params);
 	RP.findOne({
 		where: {
 			token: req.params.confirm_token,
@@ -216,9 +216,9 @@ exports.confirmPassword = (req, res) => {
 					tokenCreationTime,
 					'minutes'
 				);
-				console.log(timeDifference);
-				console.log('tokenCreationTime: ', tokenCreationTime);
-				console.log('currentTime: ', currentTime);
+				// console.log(timeDifference);
+				// console.log('tokenCreationTime: ', tokenCreationTime);
+				// console.log('currentTime: ', currentTime);
 				if (timeDifference > 5 * 60) {
 					return res.status(400).send({
 						message:

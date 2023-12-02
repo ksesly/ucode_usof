@@ -39,7 +39,7 @@ exports.findCurrentUser = (req, res) => {
 		req.headers.authorization.split(' ')[1],
 		process.env.secretKey,
 		(err, decoded) => {
-			console.log(decoded);
+			// console.log(decoded);
 			User.findByPk(decoded.id)
 				.then((data) => {
 					if (data) res.send(data);
@@ -85,7 +85,7 @@ exports.create = (req, res) => {
 		role: req.body.role,
 	};
 
-	console.log(user);
+	// console.log(user);
 	User.create(user)
 		.then((data) => {
 			res.send({
@@ -107,7 +107,7 @@ exports.updateAvatar = (req, res) => {
 		uploadDir: path.join(__dirname, '../static/avatars'),
 	});
 
-	console.log('tuta rabotaet 1');
+	// console.log('tuta rabotaet 1');
 
 	jwt.verify(
 		req.headers.authorization.split(' ')[1],
@@ -121,10 +121,10 @@ exports.updateAvatar = (req, res) => {
 
 			const userIdFromToken = decoded.id;
 
-			console.log('tuta rabotaet 2');
+			// console.log('tuta rabotaet 2');
 
 			form.parse(req, (err, fields, files) => {
-				console.log('tuta rabotaet 3');
+				// console.log('tuta rabotaet 3');
 				if (err) {
 					return res.status(500).send({
 						message: 'Error parsing form: ' + err.message,
@@ -140,7 +140,7 @@ exports.updateAvatar = (req, res) => {
 				}
 
 				const profilePicturePath = profilePictureFile.path;
-				console.log(profilePicturePath, 'IPIPUPIPIPIPIPI');
+				// console.log(profilePicturePath, 'IPIPUPIPIPIPIPI');
 				const mimeType = profilePictureFile.type;
 				const fileExtension = mime.extension(mimeType);
 
