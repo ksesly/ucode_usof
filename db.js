@@ -10,7 +10,9 @@ const sequelize = new Sequelize(
 );
 
 sequelize
-	.sync(/*{ alter: true }*/)
+	.sync(
+		// { alter: true }
+		)
 	.then(() => {
 		console.log('Sync db!');
 	})
