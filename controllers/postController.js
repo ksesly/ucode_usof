@@ -9,130 +9,133 @@ const Like = require('../models/likeModel');
 const Category = require('../models/categoryModel');
 
 exports.getAllPosts = (req, res) => {
-    const {
-        sort = 'likes',
-        order = 'DESC',
-        categories,
-        dateFrom,
-        dateTo,
-        page = 1,
-        pageSize = 10,
-    } = req.query;
+	const {
+		sort = 'likes',
+		order = 'DESC',
+		categories,
+		dateFrom,
+		dateTo,
+		page = 1,
+		pageSize = 10,
+	} = req.query;
 
-    const offset = (page - 1) * pageSize;
-    const limit = pageSize;
+	const offset = (page - 1) * pageSize;
+	const limit = pageSize;
 
-    let orderBy;
+	let orderBy;
 
-    if (sort === 'date') orderBy = [['createdAt', order]];
-    else orderBy = [['likes', order], ['createdAt', order]];
+	if (sort === 'date') orderBy = [['createdAt', order]];
+	else
+		orderBy = [
+			['likes', order],
+			['createdAt', order],
+		];
 
-    let where = {};
-    let whereAccess = {};
+	let where = {};
+	let whereAccess = {};
 
-    if (dateFrom && dateTo) {
-        where.createdAt = {
-            [Op.between]: [dateFrom, dateTo],
-        };
-    }
+	if (dateFrom && dateTo) {
+		where.createdAt = {
+			[Op.between]: [dateFrom, dateTo],
+		};
+	}
 
-    if (categories) {
-        where.title = categories;
-    }
+	if (categories) {
+		where.title = categories;
+	}
 
-    const categoryInclude = categories
-        ? [
-            {
-                model: Category,
-                as: 'categories',
-                where: { title: categories },
-            },
-        ]
-        : [
-            {
-                model: Category,
-                as: 'categories',
-                required: false,
-            },
-        ];
+	const categoryInclude = categories
+		? [
+				{
+					model: Category,
+					as: 'categories',
+					where: { title: categories },
+				},
+		  ]
+		: [
+				{
+					model: Category,
+					as: 'categories',
+					required: false,
+				},
+		  ];
 
-    const authHead = req.headers.authorization;
-    if (!authHead) {
-        whereAccess = { status: 'active' };
-    } else {
-        jwt.verify(
-            req.headers.authorization.split(' ')[1],
-            process.env.secretKey,
-            (err, userData) => {
-                if (err) {
-                    res.status(400).send({
-                        message: 'nononon, kudaaaaaaaa',
-                        err,
-                    });
-                } else {
-                    const { role } = userData || {};
-                    whereAccess =
-                        role === 'user'
-                            ? {
-                                [Op.or]: [
-                                    {
-                                        status: 'inactive',
-                                        author_id: userData.id,
-                                    },
-                                    { status: 'active' },
-                                ],
-                            }
-                            : { status: 'active' };
-                }
-            }
-        );
-    }
+	const authHead = req.headers.authorization;
+	if (!authHead) {
+		whereAccess = { status: 'active' };
+	} else {
+		jwt.verify(
+			req.headers.authorization.split(' ')[1],
+			process.env.secretKey,
+			(err, userData) => {
+				if (err) {
+					res.status(400).send({
+						message: 'nononon, kudaaaaaaaa',
+						err,
+					});
+				} else {
+					const { role } = userData || {};
+					whereAccess =
+						role === 'user'
+							? {
+									[Op.or]: [
+										{
+											status: 'inactive',
+											author_id: userData.id,
+										},
+										{ status: 'active' },
+									],
+							  }
+							: { status: 'active' };
+				}
+			}
+		);
+	}
 
-    Post.findAndCountAll({
-        where: { ...where, ...whereAccess },
-        attributes: [
-            [
-                sequelize.literal(
-                    '(SELECT COUNT(*) FROM `Like` WHERE `Like`.`post_id` = `Post`.`post_id`)'
-                ),
-                'likes',
-            ],
-            'post_id',
-            'createdAt',
-            'updatedAt',
-            'author',
-            'title',
-            'content',
-            'status',
-        ],
-        order: orderBy,
-        include: categoryInclude,
-        limit: limit,
-        offset: offset,
-    })
-        .then((result) => {
-            const data = result.rows;
-            const count = result.count;
-            const totalPages = Math.ceil(count / pageSize);
+	Post.findAndCountAll({
+		where: { ...where, ...whereAccess },
+		attributes: [
+			[
+				sequelize.literal(
+					'(SELECT COUNT(*) FROM `Like` WHERE `Like`.`post_id` = `Post`.`post_id`)'
+				),
+				'likes',
+			],
+			'post_id',
+			'createdAt',
+			'updatedAt',
+			'author',
+			'title',
+			'content',
+			'status',
+		],
+		order: orderBy,
+		include: categoryInclude,
+		limit: limit,
+		offset: offset,
+	})
+		.then((result) => {
+			const data = result.rows;
+			const count = result.count;
+			const totalPages = Math.ceil(count / pageSize);
 
-            res.send({
-                data: data,
-                pagination: {
-                    totalItems: count,
-                    totalPages: totalPages,
-                    currentPage: page,
-                    pageSize: pageSize,
-                },
-            });
-        })
-        .catch((err) => {
-            // console.log(err);
-            res.status(500).send({
-                message: 'Error finding posts',
-            });
-        });
+			res.send({
+				data: data,
+				pagination: {
+					totalItems: count,
+					totalPages: totalPages,
+					currentPage: page,
+					pageSize: pageSize,
+				},
+			});
+		})
+		.catch((err) => {
+			// console.log(err);
+			res.status(500).send({
+				message: 'Error finding posts',
+			});
+		});
 };
-
 
 exports.getOnePost = (req, res) => {
 	const id = req.params.post_id;
@@ -151,6 +154,9 @@ exports.getOnePost = (req, res) => {
 			});
 		});
 };
+
+
+
 
 exports.getAllComments = (req, res) => {
 	Comment.findAll()
@@ -393,7 +399,7 @@ exports.createLike = (req, res) => {
 			// console.log(userData);
 			const authorId = userData.id;
 
-			// Check if the current user has already liked the post
+			
 			Like.findOne({
 				where: {
 					post_id: id,

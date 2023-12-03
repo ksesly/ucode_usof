@@ -14,6 +14,7 @@ module.exports = (app) => {
 	// for users
 	router.use(preveliges.protectedRoute);
 	router.post('/:post_id/comments', posts.createComment);
+	
 	router.get('/:post_id/categories', posts.getCategoriesFromPost); 
 	router.get('/:post_id/like', posts.getLikesUnderPost); 
 	router.post('/', posts.createPost); 

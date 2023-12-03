@@ -4,6 +4,7 @@ const path = require('path');
 const fs = require('fs');
 const mime = require('mime-types');
 const jwt = require('jsonwebtoken');
+const Post = require('../models/postModel');
 
 exports.findAll = (req, res) => {
 	User.findAll()
@@ -34,6 +35,62 @@ exports.findOne = (req, res) => {
 			});
 		});
 };
+
+exports.getAllPostsByUserId = (req, res) => {
+	const id = req.params.user_id;
+	const {
+		sort = 'post_id',
+		order = 'DESC',
+		page = 1,
+		pageSize = 10,
+	} = req.query;
+
+	const offset = (page - 1) * pageSize;
+	const limit = pageSize;
+
+	const orderBy = [[sort, order]];
+
+	Post.findAndCountAll({
+		where: {
+			author_id: id,
+		},
+		attributes: [
+			'post_id',
+			'createdAt',
+			'updatedAt',
+			'author',
+			'title',
+			'content',
+			'status',
+		],
+		order: orderBy,
+		limit: limit,
+		offset: offset,
+	})
+		.then((result) => {
+			const data = result.rows;
+			const count = result.count;
+			const totalPages = Math.ceil(count / pageSize);
+
+			res.send({
+				data: data,
+				pagination: {
+					totalItems: count,
+					totalPages: totalPages,
+					currentPage: page,
+					pageSize: pageSize,
+				},
+			});
+		})
+		.catch((err) => {
+			console.error(err);
+			res.status(500).send({
+				message: 'Error retrieving posts for the user with id ' + id,
+			});
+		});
+};
+
+
 exports.findCurrentUser = (req, res) => {
 	jwt.verify(
 		req.headers.authorization.split(' ')[1],
