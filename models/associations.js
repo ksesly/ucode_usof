@@ -7,8 +7,8 @@ const postCategory = require('./postCategory');
 const RP = require('./resetPasswordModel');
 const Favorite = require('./favoriteModel');
 
-User.hasMany(Post, { foreignKey: 'author_id' });
-Post.belongsTo(User, { foreignKey: 'author_id' });
+User.hasMany(Post, { foreignKey: 'author_id', as: 'userPosts'  });
+Post.belongsTo(User, { foreignKey: 'author_id', as: 'postAuthor' });
 
 User.hasMany(Comment, { foreignKey: 'author_id' });
 Comment.belongsTo(User, { foreignKey: 'author_id' });
