@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const { Op } = require('sequelize');
+const { Op, where } = require('sequelize');
 
 const sequelize = require('../db');
 const Post = require('../models/postModel');
@@ -172,7 +172,12 @@ exports.getOnePost = (req, res) => {
 };
 
 exports.getAllComments = (req, res) => {
-	Comment.findAll()
+	const id = req.params.post_id;
+	Comment.findAll({
+		where: {
+			post_id: id,
+		},
+	})
 		.then((data) => {
 			res.send(data);
 		})
@@ -255,7 +260,7 @@ exports.getLikesUnderPost = (req, res) => {
 			Like.findAll({
 				where: {
 					comment_id: null,
-					post_id: id
+					post_id: id,
 				},
 			})
 				.then((likeData) => {
@@ -281,8 +286,9 @@ exports.createPost = (req, res) => {
 	if (
 		!req.body.title ||
 		!req.body.content ||
-		!req.body.categories ||
-		!Array.isArray(req.body.categories)
+		!req.body.categories
+		// ||
+		// !Array.isArray(req.body.categories)
 	) {
 		res.status(400).send({
 			message:
