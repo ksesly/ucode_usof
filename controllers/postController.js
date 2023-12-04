@@ -150,7 +150,7 @@ exports.getOnePost = (req, res) => {
 		include: [
 			{
 				model: User,
-				as: 'postAuthor', 
+				as: 'postAuthor',
 				attributes: ['profilePicture'],
 			},
 		],
@@ -255,6 +255,7 @@ exports.getLikesUnderPost = (req, res) => {
 			Like.findAll({
 				where: {
 					comment_id: null,
+					post_id: id
 				},
 			})
 				.then((likeData) => {
@@ -432,7 +433,7 @@ exports.createLike = (req, res) => {
 								const like = {
 									content: req.body.content,
 									author: userData.login,
-									author_id: userData.author_id,
+									author_id: userData.id,
 									post_id: data.post_id,
 									type: req.body.type,
 								};

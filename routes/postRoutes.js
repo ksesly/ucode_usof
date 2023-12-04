@@ -8,15 +8,15 @@ module.exports = (app) => {
 
 	//public 
 	router.get('/', posts.getAllPosts); 
+	router.get('/:post_id/like', posts.getLikesUnderPost); 
 	router.get('/:post_id', posts.getOnePost); 
 	router.get('/:post_id/comments', posts.getAllComments);
+	
 
 	// for users
 	router.use(preveliges.protectedRoute);
 	router.post('/:post_id/comments', posts.createComment);
-	
 	router.get('/:post_id/categories', posts.getCategoriesFromPost); 
-	router.get('/:post_id/like', posts.getLikesUnderPost); 
 	router.post('/', posts.createPost); 
 	router.post('/:post_id/like', posts.createLike); 
 	router.patch('/:post_id', posts.updatePost); 
