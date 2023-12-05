@@ -72,7 +72,11 @@ exports.login = async (req, res) => {
 				// console.log(result, err);
 				if (result) {
 					const token = jwt.sign(
-						{ id: data.user_id, login: data.login, role: data.role },
+						{
+							id: data.user_id,
+							login: data.login,
+							role: data.role,
+						},
 						process.env.secretKey,
 						{ expiresIn: process.env.expiresTime }
 					);
@@ -171,10 +175,6 @@ exports.resetPassword = (req, res) => {
 					text:
 						'Here is the link to reset the password: http://127.0.0.1:3000/api/auth/password-reset/' +
 						`${resetToken}`,
-					auth: {
-						user: process.env.emailUser,
-						refreshToken: process.env.REFRESHTOKEN,
-					},
 				};
 
 				const info = transporter.sendMail(
@@ -228,7 +228,12 @@ exports.confirmPassword = (req, res) => {
 
 				User.findByPk(data.user_id)
 					.then(async (info) => {
-						if (await bcrypt.compare(req.body.password, info.password)) {
+						if (
+							await bcrypt.compare(
+								req.body.password,
+								info.password
+							)
+						) {
 							return res.send({
 								message: 'You have already used this password!',
 							});
