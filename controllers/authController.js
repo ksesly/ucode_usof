@@ -173,7 +173,7 @@ exports.resetPassword = (req, res) => {
 					to: req.body.email,
 					subject: 'Reset password',
 					text:
-						'Here is the link to reset the password: http://127.0.0.1:3000/api/auth/password-reset/' +
+						'Here is the link to reset the password: http://127.0.0.1:3000/resetPassword/' +
 						`${resetToken}`,
 				};
 
